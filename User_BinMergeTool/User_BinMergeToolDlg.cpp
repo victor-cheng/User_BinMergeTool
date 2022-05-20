@@ -113,6 +113,9 @@ BEGIN_MESSAGE_MAP(CUserBinMergeToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_PATH_EXTRA_USB3_IOT, &CUserBinMergeToolDlg::OnBnClickedButtonPathExtraUsb3Iot)
 	ON_BN_CLICKED(IDC_BUTTON_PATH_EXTRA_USB3_NoIOT, &CUserBinMergeToolDlg::OnBnClickedButtonPathExtraUsb3Noiot)
 	ON_BN_CLICKED(IDC_BUTTON_PATH_EXTRA_DP, &CUserBinMergeToolDlg::OnBnClickedButtonPathExtraDp)
+
+	//Victor 20220520
+	ON_BN_CLICKED(IDC_BUTTON_PATH_RTK_MST, &CUserBinMergeToolDlg::OnBnClickedButtonPathRTKMST)
 END_MESSAGE_MAP()
 
 
@@ -183,6 +186,8 @@ BOOL CUserBinMergeToolDlg::OnInitDialog()
 	Initial_Extra_USB3_NoIOT_Value(Initial_Selection);
 	Initial_GD_MCU_Value(Initial_Selection);
 	
+	//Victor 20220520
+	Initial_RTK_MST_Value(Initial_Selection);
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
@@ -1616,6 +1621,16 @@ void CUserBinMergeToolDlg::OnBnClickedButtonCombine()
 		user_CombineFile(m_PathFile_Extra_DP, m_Combine_path_IOT);
 		//*******************************
 
+		//Victor 0520
+		if (!PathFileExists(m_PathFile_RTK_MST)) {
+			AfxMessageBox(_T("RTK MST file not exist."), MB_ICONEXCLAMATION);
+			return;
+		}
+
+		user_Adding_Tag(m_Combine_path_IOT);
+		user_CombineFile(m_PathFile_RTK_MST, m_Combine_path_IOT);
+
+
 		if (!PathFileExists(m_PathFile_Security)) {
 			AfxMessageBox(_T("Security file not exist."), MB_ICONEXCLAMATION);
 			return;
@@ -1730,6 +1745,16 @@ void CUserBinMergeToolDlg::OnBnClickedButtonCombine()
 		user_Adding_Tag(m_Combine_path_NoIOT);
 		user_CombineFile(m_PathFile_Extra_DP, m_Combine_path_NoIOT);
 		//*******************************
+
+		//Victor 20220520
+		if (!PathFileExists(m_PathFile_RTK_MST)) {
+			AfxMessageBox(_T("Extra RTK MST not exist."), MB_ICONEXCLAMATION);
+			return;
+		}
+
+		user_Adding_Tag(m_Combine_path_NoIOT);
+		user_CombineFile(m_PathFile_RTK_MST, m_Combine_path_NoIOT);
+
 
 		if (!PathFileExists(m_PathFile_Security)) {
 			AfxMessageBox(_T("Security file not exist."), MB_ICONEXCLAMATION);
@@ -1856,6 +1881,9 @@ void CUserBinMergeToolDlg::Initial_Write(void) {
 	WritePrivateProfileString(_T("Bin config"), _T("PathFile_EXTRA_USB3_NoIOT"), m_PathFile_Extra_USB_NoIOT, PathINI);	//Alan,20220208
 	WritePrivateProfileString(_T("Bin config"), _T("PathFile_EXTRA_DP"), m_PathFile_Extra_DP, PathINI);	//Alan,20220208
 
+	//Victor 20220520
+	WritePrivateProfileString(_T("Bin config"), _T("PathFile_RTK_MST"), m_PathFile_RTK_MST, PathINI);
+
 
 	WritePrivateProfileString(_T("Bin config"), _T("PathFile_Exe"), m_PathFile_Exe, PathINI);
 
@@ -1974,6 +2002,13 @@ void CUserBinMergeToolDlg::Initial_Read(void)
 	FilePath_temp.Format(_T("%s"), SetRelative_Path(m_PathFile_Extra_DP));	//有相對路徑的檔案，改成相對路徑
 	if (PathFileExists(FilePath_temp)) {
 		m_PathFile_Extra_DP = FilePath_temp;
+	}
+
+	//Victor 20220520
+	GetPrivateProfileString(_T("Bin config"), _T("PathFile_RTK_MST"), _T(""), m_PathFile_RTK_MST.GetBuffer(MAX_FILE_NAME_BUFFER), MAX_FILE_NAME_BUFFER, PathINI);
+	FilePath_temp.Format(_T("%s"), SetRelative_Path(m_PathFile_RTK_MST));	//有相對路徑的檔案，改成相對路徑
+	if (PathFileExists(FilePath_temp)) {
+		m_PathFile_RTK_MST = FilePath_temp;
 	}
 
 	GetPrivateProfileString(_T("Bin config"), _T("PathFile_Exe"), _T(""), m_PathFile_Exe.GetBuffer(MAX_FILE_NAME_BUFFER), MAX_FILE_NAME_BUFFER, PathINI);
@@ -2323,6 +2358,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage.Extra_DP.Version_DP5[0], 5);
 	Eding_Swap(&isp_headpage.Extra_DP.Version_DP6[0], 5);
 
+	//Victor 20220520
+	//seems TBD here
+
 	Eding_Swap(&isp_headpage_NoIOT.isp_version_in_mcu.DMC[0], 5);
 	Eding_Swap(&isp_headpage_NoIOT.isp_version_in_mcu.PD[0], 5);
 	Eding_Swap(&isp_headpage_NoIOT.isp_version_in_mcu.DP5x[0], 5);
@@ -2339,6 +2377,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage_NoIOT.Extra_USB3.Version[0], 5);
 	Eding_Swap(&isp_headpage_NoIOT.Extra_DP.Version_DP5[0], 5);
 	Eding_Swap(&isp_headpage_NoIOT.Extra_DP.Version_DP6[0], 5);
+
+	//Victor 20220520
+	//seem TBD here
 
 //Little Ending to Big Ending, Offset
 	Eding_Swap(&isp_headpage.isp_offset.DMC._byte[0], sizeof(Union_DWORD_t));
@@ -2357,6 +2398,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage.Extra_USB3.Offset[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage.Extra_DP.Offset[0], sizeof(Union_DWORD_t));
 
+	//Victor 20220520
+	//TBD
+
 	Eding_Swap(&isp_headpage_NoIOT.isp_offset.DMC._byte[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_offset.PD._byte[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_offset.DP5x._byte[0], sizeof(Union_DWORD_t));
@@ -2372,6 +2416,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage_NoIOT.GD_MCU.Offset[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_USB3.Offset[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_DP.Offset[0], sizeof(Union_DWORD_t));
+
+	//Victor 20220520
+	//TBD
 
 //Little Ending to Big Ending, length
 	Eding_Swap(&isp_headpage.isp_length.DMC._byte[0], sizeof(Union_DWORD_t));
@@ -2391,6 +2438,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage.Extra_USB3.Length[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage.Extra_DP.Length[0], sizeof(Union_DWORD_t));
 
+	//Victor 20220520
+	//TBD
+
 	Eding_Swap(&isp_headpage_NoIOT.isp_length.DMC._byte[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_length.PD._byte[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_length.DP5x._byte[0], sizeof(Union_DWORD_t));
@@ -2407,6 +2457,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage_NoIOT.GD_MCU.Length[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_USB3.Length[0], sizeof(Union_DWORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_DP.Length[0], sizeof(Union_DWORD_t));
+
+	//Victor 20220520
+	//TBD
 
 //Little Ending to Big Ending, Checksum
 	Eding_Swap(&isp_headpage.isp_checksum.DMC._byte[0], sizeof(Union_WORD_t));
@@ -2425,6 +2478,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage.Extra_USB3.Checksum[0], sizeof(Union_WORD_t));
 	Eding_Swap(&isp_headpage.Extra_DP.Checksum[0], sizeof(Union_WORD_t));
 
+	//Victor 20220520
+	//TBD
+
 	Eding_Swap(&isp_headpage_NoIOT.isp_checksum.DMC._byte[0], sizeof(Union_WORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_checksum.PD._byte[0], sizeof(Union_WORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.isp_checksum.DP5x._byte[0], sizeof(Union_WORD_t));
@@ -2440,6 +2496,9 @@ void CUserBinMergeToolDlg::Create_HeaderFile(void) {
 	Eding_Swap(&isp_headpage_NoIOT.GD_MCU.Checksum[0], sizeof(Union_WORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_USB3.Checksum[0], sizeof(Union_WORD_t));
 	Eding_Swap(&isp_headpage_NoIOT.Extra_DP.Checksum[0], sizeof(Union_WORD_t));
+
+	//Victor 20220520
+	Eding_Swap(&isp_headpage_NoIOT.RTK_MST.Checksum[0], sizeof(Union_WORD_t));
 
 	temp_point = &isp_headpage;
 
@@ -2570,6 +2629,9 @@ void CUserBinMergeToolDlg::Set_Offset_Value(void) {
 		//isp_headpage.Extra_DP.Offset._dword = offset_pointer;	//Extra DP offset
 		Int2BytesArray(isp_headpage.Extra_DP.Offset, sizeof(isp_headpage.Extra_DP.Offset), offset_pointer);
 
+		//Victor 20220520
+		//TBD
+
 		//message.Format(_T("Extra DP offset:0x%x\r\n"), isp_headpage.Extra_DP.Offset._dword);
 		message.Format(_T("Extra DP offset:0x%02x%02x%02x%02x\r\n"), isp_headpage.Extra_DP.Offset[3], isp_headpage.Extra_DP.Offset[2], isp_headpage.Extra_DP.Offset[1], isp_headpage.Extra_DP.Offset[0]);
 		user_DisplayInfo.AppendToLogAndScroll(message, BLUE);
@@ -2679,6 +2741,9 @@ void CUserBinMergeToolDlg::Set_Offset_Value(void) {
 		//offset_pointer = offset_pointer + isp_headpage_NoIOT.Extra_DP.Length._dword + tag_length;
 		NoIOT_offset_pointer = NoIOT_offset_pointer + BytesArray2Int(isp_headpage_NoIOT.Extra_DP.Length, sizeof(isp_headpage_NoIOT.Extra_DP.Length)) + tag_length;
 		//**********************
+
+		//Victor
+		//TBD here
 
 		isp_headpage_NoIOT.isp_offset.LVN_Security._dword = NoIOT_offset_pointer;	//LNV Security offset
 
@@ -3847,6 +3912,164 @@ void CUserBinMergeToolDlg::Initial_Extra_DP_Value(BYTE action)
 	//isp_headpage_NoIOT.Extra_DP.Checksum._word = isp_headpage.Extra_DP.Checksum._word;
 	Int2BytesArray(isp_headpage_NoIOT.Extra_DP.Checksum, sizeof(isp_headpage_NoIOT.Extra_DP.Checksum), Make_CheckSum(m_PathFile_Extra_DP));
 	message.Format(_T("Extra DP checksum:0x%02x%02x\r\n"), isp_headpage.Extra_DP.Checksum[1], isp_headpage.Extra_DP.Checksum[0]);
+	user_DisplayInfo.AppendToLogAndScroll(message, BLUE);
+	user_log.CreateFileTxt(m_IspOriginalPath, user_log.LogFileName, &message);
+}
+
+//Victor 20220520, TBD
+void CUserBinMergeToolDlg::OnBnClickedButtonPathRTKMST()
+{
+	Initial_RTK_MST_Value(Buttom_Selection);
+}
+void CUserBinMergeToolDlg::Initial_RTK_MST_Value(BYTE action)
+{
+	if (action == Buttom_Selection)
+	{
+		CString m_pathname;
+		//CString Ini_File_Path = _T("\\Test_Case\\");
+
+		CFileDialog fdlg(true, NULL, m_IspOriginalPath + _T("\\"), NULL, _T(""));	//建立單選型檔案對話盒物件
+		if (fdlg.DoModal() != IDOK) {
+			return;
+		}
+		m_pathname = fdlg.GetPathName(); //取得被選取的檔案名稱與路徑
+
+		m_PathFile_RTK_MST = m_pathname;
+
+		GetDlgItem(IDC_EDIT_PATH_EXTRA_DP)->EnableWindow(false);
+	}
+	else if (action == Initial_Selection)
+	{
+		if (!PathFileExists(m_PathFile_RTK_MST))
+		{
+			return;
+		}
+	}
+
+
+
+	CString message;
+	message.Format(_T("%s"), m_PathFile_RTK_MST.GetString());
+	int Check_Result = message.ReverseFind(_T('\\'));
+	CString file_name = message.Mid(Check_Result + 1, message.GetLength() - (Check_Result + 1));
+
+	GetDlgItem(IDC_EDIT_PATH_RTK_MST)->SetWindowText(file_name);
+
+	user_log_save.m_FileName_RTK_MST.Format(_T("%s"), file_name);
+
+	int file_size = 0;
+	file_size = user_Get_File_Size(m_PathFile_RTK_MST);
+	if (!file_size)		//if file size = 0, return
+	{
+		return;
+	}
+
+	//isp_headpage.Extra_DP.Length._dword = file_size;	//兩顆chip，放一個就好
+	Int2BytesArray(isp_headpage.RTK_MST.Length, sizeof(isp_headpage.RTK_MST.Length), file_size);
+	//isp_headpage_NoIOT.Extra_DP.Length._dword = file_size;	//兩顆chip，放一個就好
+	Int2BytesArray(isp_headpage_NoIOT.RTK_MST.Length, sizeof(isp_headpage_NoIOT.RTK_MST.Length), file_size);
+
+	//message.Format(_T("Extra DP length:0x%x\r\n"), isp_headpage.Extra_DP.Length._dword);
+	message.Format(_T("RTK MST length:0x%02x%02x%02x%02x\r\n"), isp_headpage.RTK_MST.Length[3], isp_headpage.RTK_MST.Length[2], isp_headpage.RTK_MST.Length[1], isp_headpage.RTK_MST.Length[0]);
+	user_DisplayInfo.AppendToLogAndScroll(message, BLUE);
+	user_log.CreateFileTxt(m_IspOriginalPath, user_log.LogFileName, &message);
+
+#if 1
+
+	fstream m_temp;
+	m_temp.open(m_PathFile_RTK_MST, ios::binary | ios::in);
+
+	char* temp_buff = new char[file_size];
+	memset(temp_buff, 0, sizeof(temp_buff));
+
+
+
+	for (int i = 0; i < file_size; i++)
+	{
+		m_temp.get(temp_buff[i]);
+	}
+
+#if 0 //Victor comment out
+	if (temp_buff[0x10D] != 0)		//Check 5xxx test version or not
+	{
+
+		//isp_headpage.isp_version_in_mcu.DP5x[0] = temp_buff[0x10D];	//Alan,20201228, restruct version format
+		//isp_headpage.isp_version_in_mcu.DP5x[1] = temp_buff[0x18401];
+		//isp_headpage.isp_version_in_mcu.DP5x[2] = temp_buff[0x18400];
+
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[0] = temp_buff[0x10D];	//Alan,20201228, restruct version format
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[1] = temp_buff[0x18401];
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[2] = temp_buff[0x18400];
+
+		isp_headpage.Extra_DP.Version_DP5[0] = temp_buff[0x10D];	//Alan,20220207, restruct version format
+		isp_headpage.Extra_DP.Version_DP5[1] = temp_buff[0x18401];
+		isp_headpage.Extra_DP.Version_DP5[2] = temp_buff[0x18400];
+
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[0] = temp_buff[0x10D];	//Alan,20220207, restruct version format
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[1] = temp_buff[0x18401];
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[2] = temp_buff[0x18400];
+
+	}
+	else
+	{
+
+		//isp_headpage.isp_version_in_mcu.DP5x[0] = temp_buff[0x18402];	//Alan,20201228, restruct version format
+		//isp_headpage.isp_version_in_mcu.DP5x[1] = temp_buff[0x18401];
+		//isp_headpage.isp_version_in_mcu.DP5x[2] = temp_buff[0x18400];
+
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[0] = temp_buff[0x18402];	//Alan,20201228, restruct version format
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[1] = temp_buff[0x18401];
+		//isp_headpage_NoIOT.isp_version_in_mcu.DP5x[2] = temp_buff[0x18400];
+
+		isp_headpage.Extra_DP.Version_DP5[0] = temp_buff[0x18402];	//Alan,20220207, restruct version format
+		isp_headpage.Extra_DP.Version_DP5[1] = temp_buff[0x18401];
+		isp_headpage.Extra_DP.Version_DP5[2] = temp_buff[0x18400];
+
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[0] = temp_buff[0x18402];	//Alan,20220207, restruct version format
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[1] = temp_buff[0x18401];
+		isp_headpage_NoIOT.Extra_DP.Version_DP5[2] = temp_buff[0x18400];
+	}
+
+	if (temp_buff[0x10020D] != 0)		//Check 6xxx test version or not
+	{
+		isp_headpage.Extra_DP.Version_DP6[0] = temp_buff[0x10020D];	//Alan,20201228, restruct version format
+		isp_headpage.Extra_DP.Version_DP6[1] = temp_buff[0x154001];
+		isp_headpage.Extra_DP.Version_DP6[2] = temp_buff[0x154000];
+
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[0] = temp_buff[0x10020D];	//Alan,20201228, restruct version format
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[1] = temp_buff[0x154001];
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[2] = temp_buff[0x154000];
+	}
+	else
+	{
+
+		isp_headpage.Extra_DP.Version_DP6[0] = temp_buff[0x154002];	//Alan,20201228, restruct version format
+		isp_headpage.Extra_DP.Version_DP6[1] = temp_buff[0x154001];
+		isp_headpage.Extra_DP.Version_DP6[2] = temp_buff[0x154000];
+
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[0] = temp_buff[0x154002];	//Alan,20201228, restruct version format
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[1] = temp_buff[0x154001];
+		isp_headpage_NoIOT.Extra_DP.Version_DP6[2] = temp_buff[0x154000];
+	}
+#endif
+
+	m_temp.close();
+	delete[] temp_buff;
+#endif
+	message.Format(_T("%02d%02d%03d"), isp_headpage.Extra_DP.Version_DP5[2], isp_headpage.Extra_DP.Version_DP5[1], isp_headpage.Extra_DP.Version_DP5[0]);
+
+	GetDlgItem(IDC_EDIT_VSERION_EXTRA_DP_5XXX)->SetWindowText(message);
+
+
+	message.Format(_T("%02d%02d%03d"), isp_headpage.Extra_DP.Version_DP6[2], isp_headpage.Extra_DP.Version_DP6[1], isp_headpage.Extra_DP.Version_DP6[0]);
+	GetDlgItem(IDC_EDIT_VSERION_EXTRA_DP_6XXX)->SetWindowText(message);
+
+
+	//isp_headpage.RTK_MST.Checksum._word = Make_CheckSum(m_PathFile_RTK_MST);
+	Int2BytesArray(isp_headpage.RTK_MST.Checksum, sizeof(isp_headpage.RTK_MST.Checksum), Make_CheckSum(m_PathFile_RTK_MST));
+	//isp_headpage_NoIOT.RTK_MST.Checksum._word = isp_headpage.RTK_MST.Checksum._word;
+	Int2BytesArray(isp_headpage_NoIOT.RTK_MST.Checksum, sizeof(isp_headpage_NoIOT.RTK_MST.Checksum), Make_CheckSum(m_PathFile_RTK_MST));
+	message.Format(_T("RTK_MST checksum:0x%02x%02x\r\n"), isp_headpage.RTK_MST.Checksum[1], isp_headpage.RTK_MST.Checksum[0]);
 	user_DisplayInfo.AppendToLogAndScroll(message, BLUE);
 	user_log.CreateFileTxt(m_IspOriginalPath, user_log.LogFileName, &message);
 }

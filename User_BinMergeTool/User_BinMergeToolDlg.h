@@ -176,7 +176,10 @@ typedef struct _IspHeadPage_t {		//總共512Bytes
 	IspExtendChip_t GD_MCU;			//15 Bytes
 	IspExtendChip_t Extra_USB3;		//15 Bytes
 	IspExtendChip_2Ver_t Extra_DP;		//20 Bytes
-	BYTE Reserve_5[206];	//剩下的緩存空間	
+
+	//Victor 20220520
+	IspExtendChip_t RTK_MST;
+	BYTE Reserve_5[191];	//剩下的緩存空間	
 } IspHeadPage_t;
 
 
@@ -269,6 +272,10 @@ public:
 	CString m_PathFile_Extra_DP;	//Alan,20220207
 	CString m_PathFile_GD_MCU;	//Alan,20220207
 
+	//Victor 20220520
+	CString m_PathFile_RTK_MST;
+
+
 	//CString m_Version_DMC, m_Version_PD, m_Version_TBT4, m_Version_DP_5xxx, m_Version_DP_6xxx, m_Version_USB2_HUB, m_Version_USB_AUDIO, m_Version_LAN_I225, m_Version_MCU, m_Version_Exe;
 
 	CString m_Company_Name,  m_Edge_Tag;
@@ -320,4 +327,8 @@ public:
 	void Initial_Extra_USB3_NoIOT_Value(BYTE action);
 
 	void Initial_GD_MCU_Value(BYTE action);
+
+	//victor 20220520
+	afx_msg void OnBnClickedButtonPathRTKMST();
+	void Initial_RTK_MST_Value(BYTE action);
 };

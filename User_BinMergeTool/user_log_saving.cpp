@@ -145,6 +145,9 @@ GD MCU, Extra USB3, Extra DP,\
 		m_FileName_MCU, m_FileName_Security, m_FileName_GD_MCU, m_FileName_Extra_USB3_NoIOT, m_FileName_Extra_DP\
 	);
 
+	//Victor 20220520
+	//TBD
+
 	cf1.WriteString(csWriteContent);
 
 	cf1.Close();

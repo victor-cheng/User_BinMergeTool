@@ -85,6 +85,9 @@ public:
 	CString m_FileName_Extra_DP;
 	CString m_FileName_GD_MCU;
 
+	//Victor 20220520
+	CString m_FileName_RTK_MST;
+
 private:
 //	void doGetResults();
 
